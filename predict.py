@@ -11,7 +11,7 @@ def predict_score(loaded_model, sentence, word_idx):
 	sentence_list_np = np.zeros((56,1))
 	# split the sentence into its words and remove any punctuations.
 	tokenizer = RegexpTokenizer(r'\w+')
-	data_sample_list = tokenizer.tokenize(data)
+	data_sample_list = tokenizer.tokenize(sentence)
 
 	labels = np.array([1,2,3,4,5,6,7,8,9,10], dtype = "int")
 	#word_idx['I']
