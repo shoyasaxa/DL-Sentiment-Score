@@ -44,7 +44,7 @@ def predict_score(trained_model, sentence, word_idx):
 	new_min = 1 
 	old_range = 2 
 
-	scaled_score = (((single_score_dot + new_min) * new_range)/old_range) + new_range
+	scaled_score = (((single_score_dot + new_min) * new_range)/old_range) + new_min
 
 	#print (single_score)
 	return scaled_score
