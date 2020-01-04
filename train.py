@@ -74,7 +74,7 @@ def train(root_path):
 	earlyStopping = keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=0, patience=3, verbose=0, mode='auto')
 
 	# Fit the model
-	model.fit(train_x, train_y, batch_size=BATCH_SIZE, epochs=10,validation_data=(val_x, val_y), callbacks=[saveBestModel, earlyStopping])
+	model.fit(train_x, train_y, batch_size=BATCH_SIZE, epochs=25,validation_data=(val_x, val_y), callbacks=[saveBestModel, earlyStopping])
 	# Final evaluation of the model
 	score, acc = model.evaluate(test_x, test_y, batch_size=BATCH_SIZE)
 
