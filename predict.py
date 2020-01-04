@@ -6,7 +6,7 @@ import h5py
 from keras.models import load_model
 from nltk.tokenize import RegexpTokenizer
 
-def predict_score(loaded_model, sentence, word_idx):
+def predict_score(trained_model, sentence, word_idx):
 	sentence_list = []
 	sentence_list_np = np.zeros((56,1))
 	# split the sentence into its words and remove any punctuations.
