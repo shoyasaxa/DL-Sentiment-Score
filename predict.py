@@ -3,7 +3,7 @@ import os
 import numpy as np
 import sys
 import h5py
-
+from keras.models import load_model
 from nltk.tokenize import RegexpTokenizer
 
 def predict_score(loaded_model, sentence, word_idx):
