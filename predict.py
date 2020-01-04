@@ -7,6 +7,7 @@ from keras.models import load_model
 from nltk.tokenize import RegexpTokenizer
 
 def predict_score(trained_model, sentence, word_idx):
+	print(sentence)
 	sentence_list = []
 	sentence_list_np = np.zeros((56,1))
 	# split the sentence into its words and remove any punctuations.
@@ -44,7 +45,7 @@ def predict_score(trained_model, sentence, word_idx):
 	new_min = 1 
 	old_range = 2 
 
-	scaled_score = (((single_score_dot + new_min) * new_range)/old_range) + new_min
+	scaled_score = round((((single_score_dot + new_min) * new_range)/old_range) + new_min,2)
 
 	#print (single_score)
 	return scaled_score
