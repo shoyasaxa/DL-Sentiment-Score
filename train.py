@@ -46,16 +46,16 @@ def load_all_data(data_dir,prediction_path, glove_file, first_run):
 
 def create_model_rnn(weight_matrix, max_words, EMBEDDING_DIM):
 	model = Sequential()
-    model.add(Embedding(len(weight_matrix), EMBEDDING_DIM, weights=[weight_matrix], input_length=max_words, trainable=False))
-    model.add(Bidirectional(LSTM(128, dropout=0.2, recurrent_dropout=0.2)))
-    model.add(Dense(512, activation='relu'))
-    model.add(Dropout(0.50))
-    model.add(Dense(10, activation='softmax'))
-    # try using different optimizers and different optimizer configs
-    model.compile(loss='categorical_crossentropy',optimizer='adam', metrics=['accuracy'])
-    print(model.summary())
+	model.add(Embedding(len(weight_matrix), EMBEDDING_DIM, weights=[weight_matrix], input_length=max_words, trainable=False))
+	model.add(Bidirectional(LSTM(128, dropout=0.2, recurrent_dropout=0.2)))
+	model.add(Dense(512, activation='relu'))
+	model.add(Dropout(0.50))
+	model.add(Dense(10, activation='softmax'))
+	# try using different optimizers and different optimizer configs
+	model.compile(loss='categorical_crossentropy',optimizer='adam', metrics=['accuracy'])
+	print(model.summary())
 
-    return model
+	return model
 
 def create_model_rnn_hp(hp, weight_matrix, max_words, EMBEDDING_DIM):
 
