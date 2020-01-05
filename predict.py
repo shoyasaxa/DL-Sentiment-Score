@@ -3,7 +3,7 @@ import os
 import numpy as np
 import sys
 import h5py
-from keras.models import load_model
+from keras.models import load_model,model_from_json
 from nltk.tokenize import RegexpTokenizer
 
 def predict_score(trained_model, sentence, word_idx):
@@ -54,45 +54,43 @@ def predict(path):
 	glove_file = path+'/Data/glove/glove_6B_100d.txt'
 	weight_matrix, word_idx = uf.load_embeddings(glove_file)
 	# weight_path = path +'/model/best_weights_bi_glove.hdf5'
-	weight_path = path +'/model/best_model.hdf5'
-	loaded_model = load_model(weight_path)
-	loaded_model.summary()
+
+	models = [] 
+
+	i=0
+	for model_weight_file in os.listdir(path+'/model/keras_tuner'):
+		json_file = open(root_path+"/keras_tuner/models/best_model_{}.json".format(i))
+		loaded_model_json = json_file.read()
+		json_file.close()
+		loaded_model = model_from_json(loaded_model_json)
+		loaded_model.load_weights(root_path+"/keras_tuner/weights/best_model_{}.h5".format(i))
+		loaded_model.compile(loss='categorical_crossentropy',optimizer='adam', metrics=['accuracy'])
+		models.append(loaded_model)
+		i+=1
+
+	# weight_path = path +'/model/best_model.hdf5'
+	# loaded_model = load_model(weight_path)
+	# loaded_model.summary()
 	# data_sample = "Great!! it is raining today!!"
-	data_sample = "Amazing Professor and the best class I have ever had at Columbia. He is so caring and such an inspirational speaker. I would definitely recommend!"
-	result = predict_score(loaded_model,data_sample, word_idx)
-	print (result)
 
-	data_sample_2 = "He was an okay professor. Very normal workload, not a bad class"
-	print(predict_score(loaded_model, data_sample_2, word_idx))
+	sentences = [
+		"Amazing Professor and the best class I have ever had at Columbia. He is so caring and such an inspirational speaker. I would definitely recommend!",
+		"He was an okay professor. Very normal workload, not a bad class",
+		"Decent class, decent workload, okay final. Overall, I would recommend",
+		"Workload was pretty rough, but overall, Benajiba is not a bad choice for NLP",
+		"I expected more from this class. The professor will publicly call you out in front of the class if you get a problem wrong. I would avoid it",
+		"This class will teach you a lot about proofs. If you like hard math, then I would recommend. If you don't like complicated equations, then I wouldn't recommend it.",
+		"This class will teach you a lot about proofs.",
+		"If you like hard math, then I would recommend",
+		"If you don't like complicated equations, then I wouldn't recommend it."
+	]
 
-	data_sample_3 = "Decent class, decent workload, okay final. Overall, I would recommend"
-	print(predict_score(loaded_model, data_sample_3, word_idx))
-
-	data_sample_4 = "Workload was pretty rough, but overall, Benajiba is not a bad choice for NLP"
-	print(predict_score(loaded_model, data_sample_4, word_idx))
-
-	data_sample_5 = "I expected more from this class. The professor will publicly call you out in front of the class if you get a problem wrong."
-	print(predict_score(loaded_model, data_sample_5, word_idx))
-
-	data_sample_6 = "This class will teach you a lot about proofs. If you like hard math, then I would recommend. If you don't like complicated equations, then I wouldn't recommend it."
-	print(predict_score(loaded_model, data_sample_6, word_idx))
-
-	data_sample_6 = "This class will teach you a lot about proofs."
-	print(predict_score(loaded_model, data_sample_6, word_idx))
-
-	data_sample_6 = "If you like hard math, then I would recommend"
-	print(predict_score(loaded_model, data_sample_6, word_idx))
-
-	data_sample_6 = "If you don't like complicated equations, then I wouldn't recommend it."
-	print(predict_score(loaded_model, data_sample_6, word_idx))
-
-	data_sample_6 = "Definitely not the best at explaining concepts, which is kind of critical considering that this course is very abstract and theoretical. It can also get very hard to take notes on his lecture because he often would not write down a complex idea he is talking about and/or scribble very few words about it. He does regurgitate the textbook almost verbatim, so you can totally get away with not attending class."
-	print(predict_score(loaded_model, data_sample_6, word_idx))
-
-	data_sample_6 = "This is the worst CS class I've taken at Columbia by far. Expect extremely large projects that have nothing to do with what is covered in lecture, and a fucked up grading system that doesn't reflect how well you understand the material or how hard you work. Oh and by the way, unless you pass 100% of test cases, you get a ZERO on the project. You only start to earn points through optimization of your circuit. I got the highest possible score on the first 5 projects, and got a poor score (I think around a 30% or something) on the last project, and ended up with a B in the class. I'm honestly not sure how it's possible to get a good grade in the class. Moral of the story: RUN AT ALL COSTS. Rubenstein may have poor reviews but there is no possible way his class could be worse than this. Martha Kim ruined my semester and I have no respect for her - classes like this are why Columbia has a mental health problem."
-	print(predict_score(loaded_model, data_sample_6, word_idx))
-
-	   
+	for sentence in sentences:
+		print(sentence)
+		for i, model in enumerate(models):
+			print("model {}:".format(i))
+			print(predict_score(model,sentence,word_idx))
+   
 
 if __name__ == "__main__":
 	predict(sys.argv[1])
