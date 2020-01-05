@@ -55,22 +55,22 @@ def predict(path):
 	weight_matrix, word_idx = uf.load_embeddings(glove_file)
 	# weight_path = path +'/model/best_weights_bi_glove.hdf5'
 
-	models = [] 
+	# models = [] 
 
-	i=0
-	for model_weight_file in os.listdir(path+'/model/keras_tuner'):
-		json_file = open(root_path+"/keras_tuner/models/best_model_{}.json".format(i))
-		loaded_model_json = json_file.read()
-		json_file.close()
-		loaded_model = model_from_json(loaded_model_json)
-		loaded_model.load_weights(root_path+"/keras_tuner/weights/best_model_{}.h5".format(i))
-		loaded_model.compile(loss='categorical_crossentropy',optimizer='adam', metrics=['accuracy'])
-		models.append(loaded_model)
-		i+=1
+	# i=0
+	# for model_weight_file in os.listdir(path+'/model/keras_tuner'):
+	# 	json_file = open(root_path+"/keras_tuner/models/best_model_{}.json".format(i))
+	# 	loaded_model_json = json_file.read()
+	# 	json_file.close()
+	# 	loaded_model = model_from_json(loaded_model_json)
+	# 	loaded_model.load_weights(root_path+"/keras_tuner/weights/best_model_{}.h5".format(i))
+	# 	loaded_model.compile(loss='categorical_crossentropy',optimizer='adam', metrics=['accuracy'])
+	# 	models.append(loaded_model)
+	# 	i+=1
 
-	# weight_path = path +'/model/best_model.hdf5'
-	# loaded_model = load_model(weight_path)
-	# loaded_model.summary()
+	weight_path = path +'/model/best_model.hdf5'
+	loaded_model = load_model(weight_path)
+	loaded_model.summary()
 	# data_sample = "Great!! it is raining today!!"
 
 	sentences = [
@@ -87,9 +87,11 @@ def predict(path):
 
 	for sentence in sentences:
 		print(sentence)
-		for i, model in enumerate(models):
-			print("model {}:".format(i))
-			print(predict_score(model,sentence,word_idx))
+		print(predict_score(load_model,sentence,word_idx))
+
+		# for i, model in enumerate(models):
+		# 	print("model {}:".format(i))
+		# 	print(predict_score(model,sentence,word_idx))
    
 
 if __name__ == "__main__":

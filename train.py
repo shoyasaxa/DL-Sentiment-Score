@@ -44,7 +44,20 @@ def load_all_data(data_dir,prediction_path, glove_file, first_run):
 
 	return train_x, train_y, test_x, test_y, val_x, val_y, weight_matrix, word_idx, max_seq_length
 
-def create_model_rnn(hp, weight_matrix, max_words, EMBEDDING_DIM):
+def create_model_rnn(weight_matrix, max_words, EMBEDDING_DIM):
+	model = Sequential()
+    model.add(Embedding(len(weight_matrix), EMBEDDING_DIM, weights=[weight_matrix], input_length=max_words, trainable=False))
+    model.add(Bidirectional(LSTM(128, dropout=0.2, recurrent_dropout=0.2)))
+    model.add(Dense(512, activation='relu'))
+    model.add(Dropout(0.50))
+    model.add(Dense(10, activation='softmax'))
+    # try using different optimizers and different optimizer configs
+    model.compile(loss='categorical_crossentropy',optimizer='adam', metrics=['accuracy'])
+    print(model.summary())
+
+    return model
+
+def create_model_rnn_hp(hp, weight_matrix, max_words, EMBEDDING_DIM):
 
 	# create the model
 	model = Sequential()
@@ -83,7 +96,8 @@ class MyHyperModel(HyperModel):
 	def build(self,hp):
 		model = Sequential()
 
-		e = Embedding(len(self.weight_matrix), self.embedding_dim, weights=[self.weight_matrix], input_length=self.max_words, trainable=False)
+		# e = Embedding(len(self.weight_matrix), self.embedding_dim, weights=[self.weight_matrix], input_length=self.max_words, trainable=False)
+		e = Embedding(len(self.weight_matrix), self.embedding_dim, weights=[self.weight_matrix], trainable=False)
 
 		model.add(e)
 
@@ -123,48 +137,47 @@ def train(root_path):
 
 	train_x, train_y, test_x, test_y, val_x, val_y, weight_matrix, word_idx, max_seq_length = load_all_data(data_directory,prediction_path, glove_file, first_run)
 
-	# model = create_model_rnn(weight_matrix, max_seq_length, EMBEDDING_DIM)
+	model = create_model_rnn(weight_matrix, max_seq_length, EMBEDDING_DIM)
 
-	# saveBestModel = keras.callbacks.ModelCheckpoint(root_path+'/model/best_model.hdf5', monitor='val_acc', verbose=0, save_best_only=True, save_weights_only=False, mode='auto', period=1)
-	# earlyStopping = keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=0, patience=3, verbose=0, mode='auto')
+	saveBestModel = keras.callbacks.ModelCheckpoint(root_path+'/model/best_model.hdf5', monitor='val_acc', verbose=0, save_best_only=True, save_weights_only=False, mode='auto', period=1)
+	earlyStopping = keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=0, patience=3, verbose=0, mode='auto')
 
-	print("Initializing RandomSearch Tuner...")
-	print(max_seq_length)
-	print('------------')
-	tuner = RandomSearch(
-		 MyHyperModel(weight_matrix=weight_matrix, max_words=56, embedding_dim=EMBEDDING_DIM),
-		 objective='val_accuracy',
-		 max_trials=3,
-		 executions_per_trial=1 
-	)
+	# print("Initializing RandomSearch Tuner...")
 
-	print("Searching...")
-	tuner.search(train_x, train_y, batch_size=BATCH_SIZE, epochs=15,validation_data=(val_x, val_y))
+	# tuner = RandomSearch(
+	# 	 MyHyperModel(weight_matrix=weight_matrix, max_words=max_seq_length, embedding_dim=EMBEDDING_DIM),
+	# 	 objective='val_accuracy',
+	# 	 max_trials=3,
+	# 	 executions_per_trial=1 
+	# )
+
+	# print("Searching...")
+	# tuner.search(train_x, train_y, batch_size=BATCH_SIZE, epochs=15,validation_data=(val_x, val_y))
 	# tuner.search(train_x, train_y, batch_size=BATCH_SIZE, epochs=25,validation_data=(val_x, val_y), callbacks=[saveBestModel, earlyStopping])
 
-	best_models = tuner.get_best_models(num_models=2)
-	for i, model in enumerate(best_models):
-		score, acc = model.evaluate(test_x, test_y, batch_size=BATCH_SIZE)
-		print("model {}:".format(i+1))
-		print('Test score:', score)
-		print('Test accuracy:', acc)
-		model.save_weights(root_path+"/keras_tuner/weights/best_model_{}.h5".format(i))
-		model_json = model.to_json()
-		with open(root_path+"/keras_tuner/models/best_model_{}.json".format(i),"w") as json_file:
-			json_file.write(model_json)
-		print("model {} saved".format(i+1))
+	# best_models = tuner.get_best_models(num_models=2)
+	# for i, model in enumerate(best_models):
+	# 	score, acc = model.evaluate(test_x, test_y, batch_size=BATCH_SIZE)
+	# 	print("model {}:".format(i+1))
+	# 	print('Test score:', score)
+	# 	print('Test accuracy:', acc)
+	# 	model.save_weights(root_path+"/keras_tuner/weights/best_model_{}.h5".format(i))
+	# 	model_json = model.to_json()
+	# 	with open(root_path+"/keras_tuner/models/best_model_{}.json".format(i),"w") as json_file:
+	# 		json_file.write(model_json)
+	# 	print("model {} saved".format(i+1))
 
 
 	# Fit the model
-	# model.fit(train_x, train_y, batch_size=BATCH_SIZE, epochs=25,validation_data=(val_x, val_y), callbacks=[saveBestModel, earlyStopping])
-	# # Final evaluation of the model
-	# score, acc = model.evaluate(test_x, test_y, batch_size=BATCH_SIZE)
+	model.fit(train_x, train_y, batch_size=BATCH_SIZE, epochs=1,validation_data=(val_x, val_y), callbacks=[saveBestModel, earlyStopping])
+	# Final evaluation of the model
+	score, acc = model.evaluate(test_x, test_y, batch_size=BATCH_SIZE)
 
-	# print('Test score:', score)
-	# print('Test accuracy:', acc)
+	print('Test score:', score)
+	print('Test accuracy:', acc)
 
-	# model.save_weights(root_path+"/model/best_model.h5")
-	# print("Saved model to disk")
+	model.save_weights(root_path+"/model/best_model.h5")
+	print("Saved model to disk")
 
 if __name__ == "__main__":
 	train(sys.argv[1])
