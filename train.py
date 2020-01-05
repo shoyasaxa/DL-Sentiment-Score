@@ -129,8 +129,10 @@ def train(root_path):
 	# earlyStopping = keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=0, patience=3, verbose=0, mode='auto')
 
 	print("Initializing RandomSearch Tuner...")
+	print(max_seq_length)
+	print('------------')
 	tuner = RandomSearch(
-		 MyHyperModel(weight_matrix=weight_matrix, max_words=max_seq_length, embedding_dim=EMBEDDING_DIM),
+		 MyHyperModel(weight_matrix=weight_matrix, max_words=56, embedding_dim=EMBEDDING_DIM),
 		 objective='val_accuracy',
 		 max_trials=3,
 		 executions_per_trial=1 
