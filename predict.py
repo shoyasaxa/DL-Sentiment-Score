@@ -87,7 +87,7 @@ def predict(path):
 
 	for sentence in sentences:
 		print(sentence)
-		print(predict_score(load_model,sentence,word_idx))
+		print(predict_score(loaded_model,sentence,word_idx))
 
 		# for i, model in enumerate(models):
 		# 	print("model {}:".format(i))

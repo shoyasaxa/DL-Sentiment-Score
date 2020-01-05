@@ -57,35 +57,6 @@ def create_model_rnn(weight_matrix, max_words, EMBEDDING_DIM):
 
 	return model
 
-def create_model_rnn_hp(hp, weight_matrix, max_words, EMBEDDING_DIM):
-
-	# create the model
-	model = Sequential()
-	model.add(Embedding(len(weight_matrix), EMBEDDING_DIM, weights=[weight_matrix], input_length=max_words, trainable=False))
-	
-	for i in range(hp.Int('num_layers_lstm',1,4)):
-		model.add(Bidirectional(LSTM(
-			units=hp.Int('units_lstm',min_value=64,max_value=1024,step=64), 
-			dropout=hp.Float('lstm_dropout',min_value=0,max_value=0.5,step=0.1), 
-			recurrent_dropout=hp.Float('lstm_recurr_dropout',min_value=0,max_value=0.5,step=0.1)
-		)))
-
-	for i in range(hp.Int('num_layers_dense',1,6)):
-		model.add(Dense(
-			units=hp.Int('units_dense',min_value=256,max_value=2048,step=128), 
-			activation='relu'
-		))
-		model.add(Dropout(
-			rate=hp.Float('dense_dropout',min_value=0,max_value=0.5,step=0.1)
-		))
-
-	model.add(Dense(10, activation='softmax'))
-	# try using different optimizers and different optimizer configs
-	model.compile(loss='categorical_crossentropy',optimizer='adam', metrics=['accuracy'])
-	print(model.summary())
-
-	return model 
-
 
 class MyHyperModel(HyperModel):
 	def __init__(self, weight_matrix, max_words, embedding_dim):
@@ -97,9 +68,7 @@ class MyHyperModel(HyperModel):
 		model = Sequential()
 
 		# e = Embedding(len(self.weight_matrix), self.embedding_dim, weights=[self.weight_matrix], input_length=self.max_words, trainable=False)
-		e = Embedding(len(self.weight_matrix), self.embedding_dim, weights=[self.weight_matrix], trainable=False)
-
-		model.add(e)
+		model.add(Embedding(len(self.weight_matrix), self.embedding_dim, weights=[self.weight_matrix], trainable=False))
 
 		for i in range(hp.Int('num_layers_lstm',1,4)):
 			model.add(Bidirectional(LSTM(
