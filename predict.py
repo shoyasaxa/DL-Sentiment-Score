@@ -83,11 +83,6 @@ def predict_score(trained_model, sentence, word_idx):
 	top_3_weights = top_3_scores/np.sum(top_3_scores)
 	single_score_dot = np.round(np.dot(top_3_index, top_3_weights)/10, decimals = 2)
 
-	OldRange = (OldMax - OldMin)  
-	NewRange = (NewMax - NewMin)  
-	NewValue = (((OldValue - OldMin) * NewRange) / OldRange) + NewMin
-
-
 	new_range = 4 
 	new_min = 1 
 	old_range = 1 
