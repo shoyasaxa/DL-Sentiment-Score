@@ -46,7 +46,7 @@ def split_into_sentences(text):
     return sentences
 
 def predict_score(trained_model, sentence, word_idx):
-	print(sentence)
+	# print(sentence)
 	sentence =  sentence.replace("\\","")
 	sentence_list = []
 	sentence_list_np = np.zeros((56,1))
@@ -174,9 +174,12 @@ def predict_review_score(path,data_path):
 				sentence = " ".join(words[:50]) 
 			if words[0] != "." or words[0] != "\".":
 				score = predict_score(loaded_model,sentence,word_idx)
-				print(score)
+				# print(score)
 				score_sum += score 
 		review_scores.append(score_sum/len(sentences))
+
+		if (i%1000==0):
+			print(i)
 
 	df["scores"] = review_scores
 
