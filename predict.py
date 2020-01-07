@@ -81,7 +81,7 @@ def predict_score(trained_model, sentence, word_idx):
 
 	new_range = 4 
 	new_min = 1 
-	old_range = 2 
+	old_range = 1 
 
 	scaled_score = round((((single_score_dot + new_min) * new_range)/old_range) + new_min,2)
 
@@ -178,7 +178,7 @@ def predict_review_score(path,data_path):
 
 	new_range = 4 
 	new_min = 1 
-	old_range = 2 
+	old_range = 1
 	df["scores"] = (((df["scores"] + 1) * new_range)/old_range)+new_min
 
 	df[['prof_id_culpa','id_culpa','review','scores']].to_excel("/output/dl_review_scores_v1.xlsx")
