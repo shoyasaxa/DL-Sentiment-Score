@@ -8,6 +8,42 @@ from nltk.tokenize import RegexpTokenizer
 import pandas as pd 
 import numpy as np 
 
+
+import re
+
+alphabets= "([A-Za-z])"
+prefixes = "(Mr|St|Mrs|Ms|Dr|Prof)[.]"
+suffixes = "(Inc|Ltd|Jr|Sr|Co)"
+starters = "(Mr|Mrs|Ms|Dr|He\s|She\s|It\s|They\s|Their\s|Our\s|We\s|But\s|However\s|That\s|This\s|Wherever)"
+acronyms = "([A-Z][.][A-Z][.](?:[A-Z][.])?)"
+websites = "[.](com|net|org|io|gov)"
+
+def split_into_sentences(text):
+    text = " " + text + "  "
+    text = text.replace("\n"," ")
+    text = re.sub(prefixes,"\\1<prd>",text)
+    text = re.sub(websites,"<prd>\\1",text)
+    if "Ph.D" in text: text = text.replace("Ph.D.","Ph<prd>D<prd>")
+    text = re.sub("\s" + alphabets + "[.] "," \\1<prd> ",text)
+    text = re.sub(acronyms+" "+starters,"\\1<stop> \\2",text)
+    text = re.sub(alphabets + "[.]" + alphabets + "[.]" + alphabets + "[.]","\\1<prd>\\2<prd>\\3<prd>",text)
+    text = re.sub(alphabets + "[.]" + alphabets + "[.]","\\1<prd>\\2<prd>",text)
+    text = re.sub(" "+suffixes+"[.] "+starters," \\1<stop> \\2",text)
+    text = re.sub(" "+suffixes+"[.]"," \\1<prd>",text)
+    text = re.sub(" " + alphabets + "[.]"," \\1<prd>",text)
+    if "”" in text: text = text.replace(".”","”.")
+    if "\"" in text: text = text.replace(".\"","\".")
+    if "!" in text: text = text.replace("!\"","\"!")
+    if "?" in text: text = text.replace("?\"","\"?")
+    text = text.replace(".",".<stop>")
+    text = text.replace("?","?<stop>")
+    text = text.replace("!","!<stop>")
+    text = text.replace("<prd>",".")
+    sentences = text.split("<stop>")
+    sentences = sentences[:-1]
+    sentences = [s.strip() for s in sentences]
+    return sentences
+
 def predict_score(trained_model, sentence, word_idx):
 	print(sentence)
 	sentence_list = []
@@ -119,14 +155,37 @@ def predict_review_score(path,data_path):
 	prof_ids = df["prof_id_culpa"].values.tolist() 
 	review_ids = df["id_culpa"].values.tolist()
 
+	review_scores = [] 
 	for i, review in enumerate(reviews):
-		sentences = reviews.split('.')
+		score_sum = 0
+		# sentences = reviews.split('.')
+		sentences = split_into_sentences(reviews)
 		for sentence in sentences: 
-			if 
+			words = sentence.split(' ')
+			if len(words) > 55:
+				sentence = " ".join(words[:55]) 
+			
+			score = predict_score(loaded_model,sentence,word_idx)
 
 			print(sentence)
+			print(score)
 
+			score_sum += score 
+		review_scores.append(score_sum/len(sentences))
+
+	df["scores"] = review_scores
+
+	new_range = 4 
+	new_min = 1 
+	old_range = 2 
+	df["scores"] = (((df["scores"] + 1) * new_range)/old_range)+new_min
+
+	df[['prof_id_culpa','id_culpa','review','scores']].to_excel("/output/dl_review_scores_v1.xlsx")
+
+	df_prof_scores = df.groupby(['prof_id_culpa']).mean()
+	df_prof_scores.to_excel('/output/dl_prof_scores_v1.xlsx')
 
 
 if __name__ == "__main__":
 	test_predict(sys.argv[1])
+	predict_review_score(sys.argv[1],sys.argv[2])
