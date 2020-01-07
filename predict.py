@@ -83,12 +83,18 @@ def predict_score(trained_model, sentence, word_idx):
 	top_3_weights = top_3_scores/np.sum(top_3_scores)
 	single_score_dot = np.round(np.dot(top_3_index, top_3_weights)/10, decimals = 2)
 
+	OldRange = (OldMax - OldMin)  
+	NewRange = (NewMax - NewMin)  
+	NewValue = (((OldValue - OldMin) * NewRange) / OldRange) + NewMin
+
 
 	new_range = 4 
 	new_min = 1 
 	old_range = 1 
 
-	scaled_score = round((((single_score_dot + new_min) * new_range)/old_range) + new_min,2)
+	# scaled_score = ((single_score_dot *4)/1)+1
+
+	scaled_score = round(((single_score_dot * new_range)/old_range) + new_min,2)
 
 	#print (single_score)
 	return scaled_score
@@ -181,7 +187,8 @@ def predict_review_score(path,data_path):
 	new_range = 4 
 	new_min = 1 
 	old_range = 1
-	df["scores"] = (((df["scores"] + 1) * new_range)/old_range)+new_min
+
+	df["scores"] = round(((df["scores"] * new_range)/old_range)+new_min,2)
 
 	df[['prof_id_culpa','id_culpa','review','scores']].to_excel("/output/dl_review_scores_v1.xlsx")
 

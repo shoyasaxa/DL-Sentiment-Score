@@ -46,8 +46,9 @@ def load_all_data(data_dir,prediction_path, glove_file, first_run):
 def build_model(weight_matrix, max_words, EMBEDDING_DIM):
 	model = Sequential()
 	model.add(Embedding(len(weight_matrix), EMBEDDING_DIM, weights=[weight_matrix], input_length=max_words, trainable=False))
-	model.add(Bidirectional(LSTM(512, dropout=0.2, recurrent_dropout=0.2)))
+	model.add(Bidirectional(LSTM(256, dropout=0.2, recurrent_dropout=0.2)))
 	model.add(Dense(1024, activation='relu'))
+	model.add(Dropout(0.50))
 	model.add(Dense(512, activation='relu'))
 	model.add(Dropout(0.50))
 	model.add(Dense(10, activation='softmax'))
