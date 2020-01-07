@@ -8,11 +8,12 @@ from nltk.tokenize import RegexpTokenizer
 import pandas as pd 
 import numpy as np 
 
+from sklearn.preprocessing import MinMaxScaler
 
 import re
 
 alphabets= "([A-Za-z])"
-prefixes = "(Mr|St|Mrs|Ms|Dr|Prof)[.]"
+prefixes = "(Mr|St|Mrs|Ms|Dr|Prof|etc)[.]"
 suffixes = "(Inc|Ltd|Jr|Sr|Co)"
 starters = "(Mr|Mrs|Ms|Dr|He\s|She\s|It\s|They\s|Their\s|Our\s|We\s|But\s|However\s|That\s|This\s|Wherever)"
 acronyms = "([A-Z][.][A-Z][.](?:[A-Z][.])?)"
@@ -58,7 +59,7 @@ def predict_score(trained_model, sentence, word_idx):
 	# get index for the live stage
 	data_index = np.array([word_idx[word.lower()] if word.lower() in word_idx else 0 for word in data_sample_list])
 	data_index_np = np.array(data_index)
-	print(data_index_np)
+	# print(data_index_np)
 
 	# padded with zeros of length 56 i.e maximum length
 	padded_array = np.zeros(56) # use the def maxSeqLen(training_data) function to detemine the padding length for your data
@@ -171,7 +172,7 @@ def predict_review_score(path,data_path):
 			words = sentence.split(' ')
 			if len(words) > 50:
 				sentence = " ".join(words[:50]) 
-			if words[0] != ".":
+			if words[0] != "." or words[0] != "\".":
 				score = predict_score(loaded_model,sentence,word_idx)
 				print(score)
 				score_sum += score 
@@ -185,7 +186,10 @@ def predict_review_score(path,data_path):
 
 	df["scores"] = round(((df["scores"] * new_range)/old_range)+new_min,2)
 
-	df[['prof_id_culpa','id_culpa','review','scores']].to_excel("/output/dl_review_scores_v1.xlsx")
+	minmax_scaler = MinMaxScaler()
+	df["scores_min_max_scaled"] = minmax_scaler.fit_transform(df["scores_min_max_scaled"].values)
+
+	df[['prof_id_culpa','id_culpa','review','scores','scores_min_max_scaled']].to_excel("/output/dl_review_scores_v1.xlsx")
 
 	df_prof_scores = df.groupby(['prof_id_culpa']).mean()
 	df_prof_scores.to_excel('/output/dl_prof_scores_v1.xlsx')
