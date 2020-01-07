@@ -10,10 +10,10 @@ from keras.layers import Dense, Flatten, LSTM, Bidirectional, Dropout
 from keras.layers.embeddings import Embedding
 from keras.preprocessing import sequence
 import h5py
-from kerastuner.tuners import RandomSearch
-# from kerastuner import HyperParameters
-from kerastuner.engine.hypermodel import HyperModel
-from kerastuner.engine.hyperparameters import HyperParameters
+# from kerastuner.tuners import RandomSearch
+# # from kerastuner import HyperParameters
+# from kerastuner.engine.hypermodel import HyperModel
+# from kerastuner.engine.hyperparameters import HyperParameters
 
 from nltk.tokenize import RegexpTokenizer
 
