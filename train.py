@@ -139,7 +139,7 @@ def train(root_path):
 
 
 	# Fit the model
-	model.fit(train_x, train_y, batch_size=BATCH_SIZE, epochs=25,validation_data=(val_x, val_y), callbacks=[saveBestModel, earlyStopping])
+	model.fit(train_x, train_y, batch_size=BATCH_SIZE, epochs=15,validation_data=(val_x, val_y), callbacks=[saveBestModel, earlyStopping])
 	# Final evaluation of the model
 	score, acc = model.evaluate(test_x, test_y, batch_size=BATCH_SIZE)
 
