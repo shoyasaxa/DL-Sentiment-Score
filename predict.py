@@ -130,7 +130,8 @@ def test_predict(path):
 		"no one should ever take this course",
 		"why would anyone ever want to take this course",
 		"run away from him",
-		"Extremely challenging course for no reason. Highly suggest not taking this course"
+		"Extremely challenging course for no reason. Highly suggest not taking this course",
+		"bad. bad. bad. horrible. horrible. horrible."
 	]
 
 	for sentence in sentences:
@@ -159,7 +160,7 @@ def predict_review_score(path,data_path):
 	for i, review in enumerate(reviews):
 		score_sum = 0
 		# sentences = reviews.split('.')
-		sentences = split_into_sentences(reviews)
+		sentences = split_into_sentences(review)
 		for sentence in sentences: 
 			words = sentence.split(' ')
 			if len(words) > 55:
