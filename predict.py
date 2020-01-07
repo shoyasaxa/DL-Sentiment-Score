@@ -5,6 +5,8 @@ import sys
 import h5py
 from keras.models import load_model,model_from_json
 from nltk.tokenize import RegexpTokenizer
+import pandas as pd 
+import numpy as np 
 
 def predict_score(trained_model, sentence, word_idx):
 	print(sentence)
@@ -50,7 +52,7 @@ def predict_score(trained_model, sentence, word_idx):
 	#print (single_score)
 	return scaled_score
 
-def predict(path):
+def test_predict(path):
 	glove_file = path+'/Data/glove/glove_6B_100d.txt'
 	weight_matrix, word_idx = uf.load_embeddings(glove_file)
 	# weight_path = path +'/model/best_weights_bi_glove.hdf5'
@@ -83,7 +85,16 @@ def predict(path):
 		"This class will teach you a lot about proofs.",
 		"If you like hard math, then I would recommend",
 		"If you don't like complicated equations, then I wouldn't recommend it.",
-		"Really bad professo. He mumbles and is very unclear. Very high expectations on the exam that is almost impossible to meet. Absolutely avoid this professor at all costs."
+		"Really bad professor. He mumbles and is very unclear. Very high expectations on the exam that is almost impossible to meet. Absolutely avoid this professor at all costs.",
+		"avoid at all costs",
+		"he is really bad",
+		"don't ever take this course",
+		"why would the university keep this professor around?",
+		"he should be fired immediately",
+		"no one should ever take this course",
+		"why would anyone ever want to take this course",
+		"run away from him",
+		"Extremely challenging course for no reason. Highly suggest not taking this course"
 	]
 
 	for sentence in sentences:
@@ -93,6 +104,29 @@ def predict(path):
 		# 	print("model {}:".format(i))
 		# 	print(predict_score(model,sentence,word_idx))
    
+def predict_review_score(path,data_path):
+	glove_file = path+'/Data/glove/glove_6B_100d.txt'
+	weight_matrix, word_idx = uf.load_embeddings(glove_file)
+	weight_path = path +'/model/best_model.hdf5'
+	loaded_model = load_model(weight_path)
+
+	df = pd.read_excel(data_path)
+	df = df.loc[df["is_workload"] == 0].copy()
+
+	df['review'] = df['review'].replace('\n','. ', regex=True)
+	reviews = df["review"].values.tolist()
+	is_workload_list = df["is_workload"].values.tolist()
+	prof_ids = df["prof_id_culpa"].values.tolist() 
+	review_ids = df["id_culpa"].values.tolist()
+
+	for i, review in enumerate(reviews):
+		sentences = reviews.split('.')
+		for sentence in sentences: 
+			if 
+
+			print(sentence)
+
+
 
 if __name__ == "__main__":
-	predict(sys.argv[1])
+	test_predict(sys.argv[1])
