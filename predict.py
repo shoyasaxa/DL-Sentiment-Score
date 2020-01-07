@@ -46,6 +46,7 @@ def split_into_sentences(text):
 
 def predict_score(trained_model, sentence, word_idx):
 	print(sentence)
+	sentence =  sentence.replace("\\","")
 	sentence_list = []
 	sentence_list_np = np.zeros((56,1))
 	# split the sentence into its words and remove any punctuations.
@@ -64,7 +65,11 @@ def predict_score(trained_model, sentence, word_idx):
 	padded_array[:data_index_np.shape[0]] = data_index_np
 	data_index_np_pad = padded_array.astype(int)
 	sentence_list.append(data_index_np_pad)
-	sentence_list_np = np.asarray(sentence_list)
+
+	if (len(sentence_list) > 56):
+		sentence_list_np = np.asarray(sentence_list[:56])
+	else:
+		sentence_list_np = np.asarray(sentence_list)
 
 	# get score from the model
 	score = trained_model.predict(sentence_list_np, batch_size=1, verbose=0)
@@ -163,15 +168,12 @@ def predict_review_score(path,data_path):
 		sentences = split_into_sentences(review)
 		for sentence in sentences: 
 			words = sentence.split(' ')
-			if len(words) > 55:
-				sentence = " ".join(words[:55]) 
-			
-			score = predict_score(loaded_model,sentence,word_idx)
-
-			print(sentence)
-			print(score)
-
-			score_sum += score 
+			if len(words) > 50:
+				sentence = " ".join(words[:50]) 
+			if words[0] != ".":
+				score = predict_score(loaded_model,sentence,word_idx)
+				print(score)
+				score_sum += score 
 		review_scores.append(score_sum/len(sentences))
 
 	df["scores"] = review_scores
