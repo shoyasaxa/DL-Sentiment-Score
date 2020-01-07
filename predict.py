@@ -82,11 +82,11 @@ def predict(path):
 		"This class will teach you a lot about proofs. If you like hard math, then I would recommend. If you don't like complicated equations, then I wouldn't recommend it.",
 		"This class will teach you a lot about proofs.",
 		"If you like hard math, then I would recommend",
-		"If you don't like complicated equations, then I wouldn't recommend it."
+		"If you don't like complicated equations, then I wouldn't recommend it.",
+		"Really bad professo. He mumbles and is very unclear. Very high expectations on the exam that is almost impossible to meet. Absolutely avoid this professor at all costs."
 	]
 
 	for sentence in sentences:
-		print(sentence)
 		print(predict_score(loaded_model,sentence,word_idx))
 
 		# for i, model in enumerate(models):
