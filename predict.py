@@ -151,7 +151,7 @@ def test_predict(path):
 def predict_review_score_v2(path,data_path):
 	glove_file = path+'/Data/glove/glove_6B_100d.txt'
 	weight_matrix, word_idx = uf.load_embeddings(glove_file)
-	weight_path = path +'/model/best_model_cnn_lstm.hdf5'
+	weight_path = path +'/model/best_model_cnn.hdf5'
 	print("loading model...)")
 	loaded_model = load_model(weight_path)
 
