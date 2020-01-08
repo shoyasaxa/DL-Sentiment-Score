@@ -80,7 +80,7 @@ def build_model_cnn(weight_matrix, max_words, EMBEDDING_DIM):
 	model.add(Embedding(len(weight_matrix), EMBEDDING_DIM, weights=[weight_matrix], input_length=max_words, trainable=False))
 	model.add(Conv1D(filters=64, kernel_size=5, padding='same', activation='relu'))
 	model.add(MaxPooling1D(pool_size=4))
-	model.add(Conv1D(filters=32, kernel_size=3),padding='same',activation='relu')
+	model.add(Conv1D(filters=32, kernel_size=3,padding='same',activation='relu'))
 	model.add(MaxPooling1D(pool_size=2))
 	model.add(Dense(1024, activation='relu'))
 	model.add(Dropout(0.50))
