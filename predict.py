@@ -174,8 +174,8 @@ def predict_review_score_v2(path,data_path):
 		if (i%2000==0):
 			print(i)
 		sentences = split_into_sentences(review)
-		for i, sentence in enumerate(sentences): 
-			if(i>=2):
+		for j, sentence in enumerate(sentences): 
+			if(j>=2):
 				break
 			sentence_tokenized = tokenizer.tokenize(sentence)
 			sentence_indexed = np.array([word_idx[word.lower()] if word.lower() in word_idx else 0 for word in sentence_tokenized])
@@ -222,6 +222,7 @@ def predict_review_score_v2(path,data_path):
 	df_sentence[["prof_id","review_id","sentence",'score','score_min_max_scaled']].to_excel(path+"/output/sentence_level_review_and_scores_v2.xlsx",engine='xlsxwriter')
 	df_prof_scores = df_sentence.groupby(['prof_id']).mean()
 	df_prof_scores.to_excel(path+'/output/dl_prof_scores_v2.xlsx')
+	print("Done")
 
 def predict_review_score(path,data_path):
 	glove_file = path+'/Data/glove/glove_6B_100d.txt'
@@ -271,10 +272,10 @@ def predict_review_score(path,data_path):
 	minmax_scaler = MinMaxScaler(feature_range=(1, 5))
 	df["scores_min_max_scaled"] = minmax_scaler.fit_transform(df["scores"].values)
 
-	df[['prof_id_culpa','id_culpa','review','scores','scores_min_max_scaled']].to_excel("/output/dl_review_scores_v1.xlsx")
+	df[['prof_id_culpa','id_culpa','review','scores','scores_min_max_scaled']].to_excel(path+"/output/dl_review_scores_v1.xlsx")
 
 	df_prof_scores = df.groupby(['prof_id_culpa']).mean()
-	df_prof_scores.to_excel('/output/dl_prof_scores_v1.xlsx')
+	df_prof_scores.to_excel(path+'/output/dl_prof_scores_v1.xlsx')
 
 
 
