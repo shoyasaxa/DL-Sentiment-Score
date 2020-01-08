@@ -221,7 +221,7 @@ def predict_review_score_v2(path,data_path):
 
 	df_sentence[["prof_id","review_id","sentence",'score','score_min_max_scaled']].to_excel(path+"/output/sentence_level_review_and_scores_v3.xlsx",engine='xlsxwriter')
 	df_prof_scores = df_sentence.groupby(['prof_id']).mean()
-	df_prof_scores["overall_score_scaled"] = minmax_scaler.fit_transform(df_sentence['min_max_scaled'].values.reshape(-1,1))
+	df_prof_scores["overall_score_scaled"] = minmax_scaler.fit_transform(df_prof_scores['score_min_max_scaled'].values.reshape(-1,1))
 	df_prof_scores.to_excel(path+'/output/dl_prof_scores_v3.xlsx')
 
 	df_prof_review_scores = df_sentence.groupby(['prof_id','review_id']).mean()
