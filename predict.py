@@ -15,7 +15,7 @@ import re
 
 def split_into_sentences(text):
 	alphabets= "([A-Za-z])"
-	prefixes = "(Mr|St|Mrs|Ms|Dr|Prof|etc)[.]"
+	prefixes = "(Mr|St|Mrs|Ms|Dr|Prof|etc|www|Ex|ex|prof|mr|mrs|dr)[.]"
 	suffixes = "(Inc|Ltd|Jr|Sr|Co)"
 	starters = "(Mr|Mrs|Ms|Dr|He\s|She\s|It\s|They\s|Their\s|Our\s|We\s|But\s|However\s|That\s|This\s|Wherever)"
 	acronyms = "([A-Z][.][A-Z][.](?:[A-Z][.])?)"
@@ -174,35 +174,22 @@ def predict_review_score_v2(path,data_path):
 		if (i%2000==0):
 			print(i)
 		sentences = split_into_sentences(review)
-		for sentence in sentences: 
+		for i, sentence in enumerate(sentences): 
+			if(i>=2):
+				break
 			sentence_tokenized = tokenizer.tokenize(sentence)
 			sentence_indexed = np.array([word_idx[word.lower()] if word.lower() in word_idx else 0 for word in sentence_tokenized])
-			# if (len(sentence_indexed)>0):
 			sentence_level_data.append((prof_ids[i],review_ids[i],sentence,sentence_indexed))
 
 	df_sentence = pd.DataFrame(sentence_level_data, columns=["prof_id","review_id","sentence","sentence_indexed"])
+
+	df_sentence = df_sentence.loc[df_sentence['sentence'].str.len() >= 2]
 	
 	pd.set_option('display.width', 1000) 
 	pd.set_option('display.max_columns', 1000) 
 	print(df_sentence.head(10))
 
 	padded = pad_sequences(df_sentence["sentence_indexed"].values,maxlen=56,padding='post',truncating='post')
-	print(padded)
-	print(type(padded))
-	print(padded[0])
-
-	# try:
-	# 	print(padded.shape)
-	# 	print(df_sentence["sentence_indexed"].shape)
-	# 	df_sentence["sentence_indexed_padded"] = padded[0]
-	# except Exception as e:
-	# 	print(e)
-	
-	# try:
-	# 	d = pd.DataFrame(padded)
-	# 	print(d)
-	# except Exception as e:
-	# 	print(e)
 
 	print("predicting...")
 	pred = loaded_model.predict(padded,batch_size=1024,verbose=2)
@@ -227,23 +214,14 @@ def predict_review_score_v2(path,data_path):
 	old_range = 1
 	df_sentence["score"] = round(((df_sentence["score"] * new_range)/old_range)+new_min,2)
 
-	minmax_scaler = MinMaxScaler()
-	try: 
-		df_sentence["score_min_max_scaled"] = -1 
-		df_sentence["score_min_max_scaled"] = minmax_scaler.fit_transform([df_sentence["score"].values.tolist()])
-	except Exception as e:
-		print(1)
-		print(e)
+	minmax_scaler = MinMaxScaler(feature_range=(1, 5))
+	
+	df_sentence["score_min_max_scaled"] = -1 
+	df_sentence["score_min_max_scaled"] = minmax_scaler.fit_transform(df_sentence["score"].values.reshape(-1, 1))
 
-	try: 
-		df_sentence["score_min_max_scaled"] = -1 
-		df_sentence["score_min_max_scaled"] = minmax_scaler.fit_transform(df_sentence["score"].values.reshape(-1, 1))
-	except Exception as e:
-		print(2)
-		print(e)
-
-	df_sentence[["prof_id","review_id","sentence",'score','score_min_max_scaled']].to_excel("sentence_level_review_and_scores.xlsx",engine='xlsxwriter')
-
+	df_sentence[["prof_id","review_id","sentence",'score','score_min_max_scaled']].to_excel("output/sentence_level_review_and_scores_v2.xlsx",engine='xlsxwriter')
+	df_prof_scores = df_sentence.groupby(['prof_id']).mean()
+	df_prof_scores.to_excel('/output/dl_prof_scores_v2.xlsx')
 
 def predict_review_score(path,data_path):
 	glove_file = path+'/Data/glove/glove_6B_100d.txt'
@@ -290,7 +268,7 @@ def predict_review_score(path,data_path):
 
 	df["scores"] = round(((df["scores"] * new_range)/old_range)+new_min,2)
 
-	minmax_scaler = MinMaxScaler()
+	minmax_scaler = MinMaxScaler(feature_range=(1, 5))
 	df["scores_min_max_scaled"] = minmax_scaler.fit_transform(df["scores"].values)
 
 	df[['prof_id_culpa','id_culpa','review','scores','scores_min_max_scaled']].to_excel("/output/dl_review_scores_v1.xlsx")
