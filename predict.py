@@ -213,25 +213,8 @@ def predict_review_score_v2(path,data_path):
 	unscaled_scores = [] 
 	print("calculating scores...")
 	for pred in pred_list:
-		print(pred)
-		try:
-			top_3_index = np.argsort(pred)[0][-3:]
-		except Exception as e:
-			print(e)
-		try:
-			print(2)
-			top_3_index = np.argsort(pred)[-3:]
-		except Exception as e:
-			print(e)
-		try:
-			print(3)
-			n = np.array(pred)
-			top_3_index = np.argsort(n)[0][-3:]
-		except Exception as e:
-			print(e)
-
-
-		top_3_scores = pred[0][top_3_index]
+		top_3_index = np.argsort(pred)[-3:]
+		top_3_scores = pred[top_3_index]
 		top_3_weights = top_3_scores/np.sum(top_3_scores)
 		unscaled_score = np.round(np.dot(top_3_index, top_3_weights)/10, decimals = 2)
 		unscaled_scores.append(unscaled_score)
