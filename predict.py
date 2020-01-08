@@ -228,7 +228,11 @@ def predict_review_score_v2(path,data_path):
 	df_sentence["score"] = round(((df_sentence["score"] * new_range)/old_range)+new_min,2)
 
 	minmax_scaler = MinMaxScaler()
-	df_sentence["score_min_max_scaled"] = minmax_scaler.fit_transform(df_sentence["score"].values)
+	try: 
+		df_sentence["score_min_max_scaled"] = -1 
+		df_sentence["score_min_max_scaled"] = minmax_scaler.fit_transform([df_sentence["score"].values.tolist()])
+	except Exception as e:
+		print(e)
 
 	df_sentence[["prof_id","review_id","sentence",'score','score_min_max_scaled']].to_excel("sentence_level_review_and_scores.xlsx")
 
