@@ -219,9 +219,9 @@ def predict_review_score_v2(path,data_path):
 	df_sentence["score_min_max_scaled"] = -1 
 	df_sentence["score_min_max_scaled"] = minmax_scaler.fit_transform(df_sentence["score"].values.reshape(-1, 1))
 
-	df_sentence[["prof_id","review_id","sentence",'score','score_min_max_scaled']].to_excel("output/sentence_level_review_and_scores_v2.xlsx",engine='xlsxwriter')
+	df_sentence[["prof_id","review_id","sentence",'score','score_min_max_scaled']].to_excel(path+"/output/sentence_level_review_and_scores_v2.xlsx",engine='xlsxwriter')
 	df_prof_scores = df_sentence.groupby(['prof_id']).mean()
-	df_prof_scores.to_excel('/output/dl_prof_scores_v2.xlsx')
+	df_prof_scores.to_excel(path+'/output/dl_prof_scores_v2.xlsx')
 
 def predict_review_score(path,data_path):
 	glove_file = path+'/Data/glove/glove_6B_100d.txt'
