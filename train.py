@@ -61,9 +61,9 @@ def build_model(weight_matrix, max_words, EMBEDDING_DIM):
 def build_model_v2(weight_matrix, max_words, EMBEDDING_DIM):
 	model = Sequential()
 	model.add(Embedding(len(weight_matrix), EMBEDDING_DIM, weights=[weight_matrix], input_length=max_words, trainable=False))
-	model.add(Conv1D(filters=32, kernel_size=3, padding='same', activation='relu'))
-	model.add(MaxPooling1D(pool_size=3))
-	model.add(Bidirectional(LSTM(256, dropout=0.2, recurrent_dropout=0.2)))
+	model.add(Conv1D(filters=64, kernel_size=5, padding='same', activation='relu'))
+	model.add(MaxPooling1D(pool_size=4))
+	model.add(Bidirectional(LSTM(512, dropout=0.2, recurrent_dropout=0.2)))
 	model.add(Dense(1024, activation='relu'))
 	model.add(Dropout(0.50))
 	model.add(Dense(512, activation='relu'))
