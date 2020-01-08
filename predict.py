@@ -242,7 +242,7 @@ def predict_review_score_v2(path,data_path):
 		print(2)
 		print(e)
 
-	df_sentence[["prof_id","review_id","sentence",'score','score_min_max_scaled']].to_excel("sentence_level_review_and_scores.xlsx",, engine='xlsxwriter')
+	df_sentence[["prof_id","review_id","sentence",'score','score_min_max_scaled']].to_excel("sentence_level_review_and_scores.xlsx",engine='xlsxwriter')
 
 
 def predict_review_score(path,data_path):
