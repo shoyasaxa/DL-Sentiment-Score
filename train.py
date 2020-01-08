@@ -16,6 +16,7 @@ import h5py
 # from kerastuner.engine.hyperparameters import HyperParameters
 
 from nltk.tokenize import RegexpTokenizer
+from livelossplot.keras import PlotLossesCallback
 
 def load_all_data(data_dir,prediction_path, glove_file, first_run):
 	weight_matrix, word_idx = uf.load_embeddings(glove_file)
@@ -46,6 +47,23 @@ def load_all_data(data_dir,prediction_path, glove_file, first_run):
 def build_model(weight_matrix, max_words, EMBEDDING_DIM):
 	model = Sequential()
 	model.add(Embedding(len(weight_matrix), EMBEDDING_DIM, weights=[weight_matrix], input_length=max_words, trainable=False))
+	model.add(Bidirectional(LSTM(256, dropout=0.2, recurrent_dropout=0.2)))
+	model.add(Dense(1024, activation='relu'))
+	model.add(Dropout(0.50))
+	model.add(Dense(512, activation='relu'))
+	model.add(Dropout(0.50))
+	model.add(Dense(10, activation='softmax'))
+	# try using different optimizers and different optimizer configs
+	model.compile(loss='categorical_crossentropy',optimizer='adam', metrics=['accuracy'])
+	print(model.summary())
+
+	return model
+
+def build_model_v2(weight_matrix, max_words, EMBEDDING_DIM):
+	model = Sequential()
+	model.add(Embedding(len(weight_matrix), EMBEDDING_DIM, weights=[weight_matrix], input_length=max_words, trainable=False))
+	model.add(Conv1D(filters=32, kernel_size=3, padding='same', activation='relu'))
+	model.add(MaxPooling1D(pool_size=3))
 	model.add(Bidirectional(LSTM(256, dropout=0.2, recurrent_dropout=0.2)))
 	model.add(Dense(1024, activation='relu'))
 	model.add(Dropout(0.50))
@@ -107,9 +125,9 @@ def train(root_path):
 
 	train_x, train_y, test_x, test_y, val_x, val_y, weight_matrix, word_idx, max_seq_length = load_all_data(data_directory,prediction_path, glove_file, first_run)
 
-	model = build_model(weight_matrix, max_seq_length, EMBEDDING_DIM)
+	model = build_model_v2(weight_matrix, max_seq_length, EMBEDDING_DIM)
 
-	saveBestModel = keras.callbacks.ModelCheckpoint(root_path+'/model/best_model.hdf5', monitor='val_acc', verbose=0, save_best_only=True, save_weights_only=False, mode='auto', period=1)
+	saveBestModel = keras.callbacks.ModelCheckpoint(root_path+'/model/best_model_cnn_lstm.hdf5', monitor='val_acc', verbose=0, save_best_only=True, save_weights_only=False, mode='auto', period=1)
 	earlyStopping = keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=0, patience=3, verbose=0, mode='auto')
 
 	# print("Initializing RandomSearch Tuner...")
@@ -139,14 +157,14 @@ def train(root_path):
 
 
 	# Fit the model
-	model.fit(train_x, train_y, batch_size=BATCH_SIZE, epochs=15,validation_data=(val_x, val_y), callbacks=[saveBestModel, earlyStopping])
+	model.fit(train_x, train_y, batch_size=BATCH_SIZE, epochs=15,validation_data=(val_x, val_y), callbacks=[saveBestModel, earlyStopping,PlotLossesCallback() ])
 	# Final evaluation of the model
 	score, acc = model.evaluate(test_x, test_y, batch_size=BATCH_SIZE)
 
 	print('Test score:', score)
 	print('Test accuracy:', acc)
 
-	model.save_weights(root_path+"/model/best_model.h5")
+	model.save_weights(root_path+"/model/best_model_cnn_lstm.h5")
 	print("Saved model to disk")
 
 if __name__ == "__main__":
