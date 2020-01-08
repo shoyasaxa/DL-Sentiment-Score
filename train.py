@@ -6,7 +6,7 @@ import sys
 
 import keras
 from keras.models import Sequential, model_from_json, load_model
-from keras.layers import Dense, Flatten, LSTM, Bidirectional, Dropout
+from keras.layers import Dense, Flatten, LSTM, Bidirectional, Dropout, Conv1D, MaxPooling1D
 from keras.layers.embeddings import Embedding
 from keras.preprocessing import sequence
 import h5py
