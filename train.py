@@ -16,7 +16,6 @@ import h5py
 # from kerastuner.engine.hyperparameters import HyperParameters
 
 from nltk.tokenize import RegexpTokenizer
-from livelossplot.keras import PlotLossesCallback
 
 def load_all_data(data_dir,prediction_path, glove_file, first_run):
 	weight_matrix, word_idx = uf.load_embeddings(glove_file)
@@ -157,7 +156,7 @@ def train(root_path):
 
 
 	# Fit the model
-	model.fit(train_x, train_y, batch_size=BATCH_SIZE, epochs=15,validation_data=(val_x, val_y), callbacks=[saveBestModel, earlyStopping,PlotLossesCallback() ])
+	model.fit(train_x, train_y, batch_size=BATCH_SIZE, epochs=30,validation_data=(val_x, val_y), callbacks=[saveBestModel, earlyStopping])
 	# Final evaluation of the model
 	score, acc = model.evaluate(test_x, test_y, batch_size=BATCH_SIZE)
 
