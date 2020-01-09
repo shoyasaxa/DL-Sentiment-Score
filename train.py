@@ -6,7 +6,7 @@ import sys
 
 import keras
 from keras.models import Sequential, model_from_json, load_model
-from keras.layers import Dense, Flatten, LSTM, Bidirectional, Dropout, Conv1D, MaxPooling1D
+from keras.layers import Dense, Flatten, LSTM, Bidirectional, Dropout, Conv1D, MaxPooling1D, Flatten
 from keras.layers.embeddings import Embedding
 from keras.preprocessing import sequence
 import h5py
@@ -82,6 +82,9 @@ def build_model_cnn(weight_matrix, max_words, EMBEDDING_DIM):
 	model.add(MaxPooling1D(pool_size=4))
 	model.add(Conv1D(filters=32, kernel_size=3,padding='same',activation='relu'))
 	model.add(MaxPooling1D(pool_size=2))
+
+	model.add(Flatten())
+
 	model.add(Dense(1024, activation='relu'))
 	model.add(Dropout(0.50))
 	model.add(Dense(512, activation='relu'))
