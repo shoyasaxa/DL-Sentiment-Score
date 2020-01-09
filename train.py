@@ -139,11 +139,14 @@ def train(root_path):
 	EMBEDDING_DIM = 200
 	data_directory = root_path + '/Data'
 	prediction_path = root_path + '/Data/output/test_pred.csv'
-	glove_file = root_path + '/Data/glove/glove.twitter.27B.200d.txt'
+	glove_file =  root_path + '/Data/glove/glove_6B_100d.txt'
+	glove_file_twitter = root_path + '/Data/glove/glove.twitter.27B.200d.txt'
 
 	first_run = True 
-
+	print("Normal")
 	train_x, train_y, test_x, test_y, val_x, val_y, weight_matrix, word_idx, max_seq_length = load_all_data(data_directory,prediction_path, glove_file, first_run)
+	print("Twitter")
+	train_x, train_y, test_x, test_y, val_x, val_y, weight_matrix, word_idx, max_seq_length = load_all_data(data_directory,prediction_path, glove_file_twitter, first_run)
 
 	model = build_model(weight_matrix, max_seq_length, EMBEDDING_DIM)
 

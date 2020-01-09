@@ -10,8 +10,15 @@ def load_embeddings(glove_path):
 	print("Loading embeddings...")
 	weight_vectors = []
 	word_idx = {}
+
+	i = 0 
+
 	with codecs.open(glove_path, encoding='utf-8') as f:
 		for line in f:
+			if (i==0):
+				print(line)
+				print(line.split(u' ', 1))
+				i+=1
 			word, vec = line.split(u' ', 1)
 			word_idx[word] = len(weight_vectors)
 			weight_vectors.append(np.array(vec.split(), dtype=np.float32))
