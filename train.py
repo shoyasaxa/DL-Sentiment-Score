@@ -135,19 +135,19 @@ def build_model_cnn(weight_matrix, max_words, EMBEDDING_DIM):
 
 def train(root_path):
 	BATCH_SIZE = 1024
-	EMBEDDING_DIM = 100 
-
+	# EMBEDDING_DIM = 100 
+	EMBEDDING_DIM = 200
 	data_directory = root_path + '/Data'
 	prediction_path = root_path + '/Data/output/test_pred.csv'
-	glove_file = root_path + '/Data/glove/glove_6B_100d.txt'
+	glove_file = root_path + '/Data/glove/glove.twitter.27B.200d.txt'
 
 	first_run = True 
 
 	train_x, train_y, test_x, test_y, val_x, val_y, weight_matrix, word_idx, max_seq_length = load_all_data(data_directory,prediction_path, glove_file, first_run)
 
-	model = build_model_cnn(weight_matrix, max_seq_length, EMBEDDING_DIM)
+	model = build_model(weight_matrix, max_seq_length, EMBEDDING_DIM)
 
-	saveBestModel = keras.callbacks.ModelCheckpoint(root_path+'/model/best_model_cnn.hdf5', monitor='val_acc', verbose=0, save_best_only=True, save_weights_only=False, mode='auto', period=1)
+	saveBestModel = keras.callbacks.ModelCheckpoint(root_path+'/model/best_model.hdf5', monitor='val_acc', verbose=0, save_best_only=True, save_weights_only=False, mode='auto', period=1)
 	earlyStopping = keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=0, patience=3, verbose=0, mode='auto')
 
 	# print("Initializing RandomSearch Tuner...")
@@ -184,7 +184,7 @@ def train(root_path):
 	print('Test score:', score)
 	print('Test accuracy:', acc)
 
-	model.save_weights(root_path+"/model/best_model_cnn.h5")
+	model.save_weights(root_path+"/model/best_model.h5")
 	print("Saved model to disk")
 
 if __name__ == "__main__":

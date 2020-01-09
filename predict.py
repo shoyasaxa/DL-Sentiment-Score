@@ -10,7 +10,7 @@ import pandas as pd
 import numpy as np 
 
 from sklearn.preprocessing import MinMaxScaler
-
+import nltk 
 import re
 
 def split_into_sentences(text):
@@ -151,7 +151,7 @@ def test_predict(path):
 def predict_review_score_v2(path,data_path):
 	glove_file = path+'/Data/glove/glove_6B_100d.txt'
 	weight_matrix, word_idx = uf.load_embeddings(glove_file)
-	weight_path = path +'/model/best_model_cnn.hdf5'
+	weight_path = path +'/model/best_model.hdf5'
 	print("loading model...)")
 	loaded_model = load_model(weight_path)
 
@@ -170,13 +170,18 @@ def predict_review_score_v2(path,data_path):
 	sentence_level_data = []
 	print("starting to make df_sentence...")
 	print("There are {} reviews".format(len(reviews)))
+
+	# nltk.download('punkt')
+	
 	for i, review in enumerate(reviews): 
 		if (i%2000==0):
 			print(i)
 		sentences = split_into_sentences(review)
-		for j, sentence in enumerate(sentences): 
-			if(j>=2):
-				break
+		# sentences = nltk.sent_tokenize(review)
+
+		for j, sentence in enumerate(sentences[:2]): 
+			# if(j>=2):
+			# 	break
 			sentence_tokenized = tokenizer.tokenize(sentence)
 			sentence_indexed = np.array([word_idx[word.lower()] if word.lower() in word_idx else 0 for word in sentence_tokenized])
 			sentence_level_data.append((prof_ids[i],review_ids[i],sentence,sentence_indexed))
