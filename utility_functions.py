@@ -15,13 +15,13 @@ def load_embeddings(glove_path):
 
 	with codecs.open(glove_path, encoding='utf-8') as f:
 		for line in f:
-			if (i==0):
-				print(line)
+			try:
+				word, vec = line.split(u' ', 1)
+				word_idx[word] = len(weight_vectors)
+				weight_vectors.append(np.array(vec.split(), dtype=np.float32))
+			except Exception as e:
+				print(e)
 				print(line.split(u' ', 1))
-				i+=1
-			word, vec = line.split(u' ', 1)
-			word_idx[word] = len(weight_vectors)
-			weight_vectors.append(np.array(vec.split(), dtype=np.float32))
 	# Annoying implementation detail; '(' and ')' are replaced by '-LRB-' and
 	# '-RRB-' respectively in the parse-trees.
 	word_idx[u'-LRB-'] = word_idx.pop(u'(')
