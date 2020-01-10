@@ -152,7 +152,7 @@ def predict_review_score_v2(path,data_path):
 	glove_file = path+'/Data/glove/glove_6B_100d.txt'
 	weight_matrix, word_idx = uf.load_embeddings(glove_file)
 	weight_path = path +'/model/best_model.hdf5'
-	print("loading model...)")
+	print("loading model...")
 	loaded_model = load_model(weight_path)
 
 	df = pd.read_excel(data_path)
@@ -172,7 +172,7 @@ def predict_review_score_v2(path,data_path):
 	print("There are {} reviews".format(len(reviews)))
 
 	# nltk.download('punkt')
-	
+
 	for i, review in enumerate(reviews): 
 		if (i%2000==0):
 			print(i)

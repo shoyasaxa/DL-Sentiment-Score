@@ -10,6 +10,7 @@ from keras.layers import Dense, Flatten, LSTM, Bidirectional, Dropout, Conv1D, M
 from keras.layers.embeddings import Embedding
 from keras.preprocessing import sequence
 import h5py
+import matplotlib.pyplot as plt 
 # from kerastuner.tuners import RandomSearch
 # # from kerastuner import HyperParameters
 # from kerastuner.engine.hypermodel import HyperModel
@@ -47,6 +48,22 @@ def build_model(weight_matrix, max_words, EMBEDDING_DIM):
 	model = Sequential()
 	model.add(Embedding(len(weight_matrix), EMBEDDING_DIM, weights=[weight_matrix], input_length=max_words, trainable=False))
 	model.add(Bidirectional(LSTM(256, dropout=0.2, recurrent_dropout=0.2)))
+	model.add(Dense(1024, activation='relu'))
+	model.add(Dropout(0.50))
+	model.add(Dense(512, activation='relu'))
+	model.add(Dropout(0.50))
+	model.add(Dense(10, activation='softmax'))
+	# try using different optimizers and different optimizer configs
+	model.compile(loss='categorical_crossentropy',optimizer='adam', metrics=['accuracy'])
+	print(model.summary())
+
+	return model
+
+def build_model_big_lstm(weight_matrix, max_words, EMBEDDING_DIM):
+	model = Sequential()
+	model.add(Embedding(len(weight_matrix), EMBEDDING_DIM, weights=[weight_matrix], input_length=max_words, trainable=False))
+	model.add(Bidirectional(LSTM(1024, dropout=0.2, recurrent_dropout=0.2,return_sequences=True)))
+	model.add(Bidirectional(LSTM(1024, dropout=0.2, recurrent_dropout=0.2)))
 	model.add(Dense(1024, activation='relu'))
 	model.add(Dropout(0.50))
 	model.add(Dense(512, activation='relu'))
@@ -97,42 +114,6 @@ def build_model_cnn(weight_matrix, max_words, EMBEDDING_DIM):
 	return model
 
 
-# class MyHyperModel(HyperModel):
-# 	def __init__(self, weight_matrix, max_words, embedding_dim):
-# 		self.weight_matrix = weight_matrix,
-# 		self.max_words = max_words,
-# 		self.embedding_dim = embedding_dim
-
-# 	def build(self,hp):
-# 		model = Sequential()
-
-# 		# e = Embedding(len(self.weight_matrix), self.embedding_dim, weights=[self.weight_matrix], input_length=self.max_words, trainable=False)
-# 		model.add(Embedding(len(self.weight_matrix), self.embedding_dim, weights=[self.weight_matrix], trainable=False))
-
-# 		for i in range(hp.Int('num_layers_lstm',1,4)):
-# 			model.add(Bidirectional(LSTM(
-# 				units=hp.Int('units_lstm',min_value=64,max_value=1024,step=64), 
-# 				dropout=hp.Float('lstm_dropout',min_value=0.0,max_value=0.5,step=0.1), 
-# 				recurrent_dropout=hp.Float('lstm_recurr_dropout',min_value=0.0,max_value=0.5,step=0.1)
-# 			)))
-
-# 		for i in range(hp.Int('num_layers_dense',1,6)):
-# 			model.add(Dense(
-# 				units=hp.Int('units_dense',min_value=256,max_value=2048,step=256), 
-# 				activation='relu'
-# 			))
-# 			model.add(Dropout(
-# 				rate=hp.Float('dense_dropout',min_value=0.0,max_value=0.5,step=0.1)
-# 			))
-
-# 		model.add(Dense(10, activation='softmax'))
-# 		# try using different optimizers and different optimizer configs
-# 		model.compile(loss='categorical_crossentropy',optimizer='adam', metrics=['accuracy'])
-# 		print(model.summary())
-
-# 		return model 
-
-
 def train(root_path):
 	BATCH_SIZE = 1024
 	# EMBEDDING_DIM = 100 
@@ -142,13 +123,9 @@ def train(root_path):
 	glove_file =  root_path + '/Data/glove/glove_6B_100d.txt'
 	glove_file_twitter = root_path + '/Data/glove/glove.twitter.27B.200d.txt'
 
-	first_run = True 
-	print("Normal")
-	train_x, train_y, test_x, test_y, val_x, val_y, weight_matrix, word_idx, max_seq_length = load_all_data(data_directory,prediction_path, glove_file, first_run)
-	print("Twitter")
 	train_x, train_y, test_x, test_y, val_x, val_y, weight_matrix, word_idx, max_seq_length = load_all_data(data_directory,prediction_path, glove_file_twitter, first_run)
 
-	model = build_model(weight_matrix, max_seq_length, EMBEDDING_DIM)
+	model = build_model_big_lstm(weight_matrix, max_seq_length, EMBEDDING_DIM)
 
 	saveBestModel = keras.callbacks.ModelCheckpoint(root_path+'/model/best_model.hdf5', monitor='val_acc', verbose=0, save_best_only=True, save_weights_only=False, mode='auto', period=1)
 	earlyStopping = keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=0, patience=3, verbose=0, mode='auto')
@@ -180,7 +157,19 @@ def train(root_path):
 
 
 	# Fit the model
-	model.fit(train_x, train_y, batch_size=BATCH_SIZE, epochs=15,validation_data=(val_x, val_y), callbacks=[saveBestModel, earlyStopping])
+	history = model.fit(train_x, train_y, batch_size=BATCH_SIZE, epochs=20,validation_data=(val_x, val_y), callbacks=[saveBestModel, earlyStopping])
+
+	try: 
+		plt.plot(history.history['acc'])
+		plt.plot(history.history['val_acc'])
+		plt.title('Model accuracy')
+		plt.ylabel('Accuracy')
+		plt.xlabel('Epoch')
+		plt.legend(['Train', 'Val'], loc='upper left')
+		plt.show()
+	except Exception as e:
+		print(e)
+
 	# Final evaluation of the model
 	score, acc = model.evaluate(test_x, test_y, batch_size=BATCH_SIZE)
 

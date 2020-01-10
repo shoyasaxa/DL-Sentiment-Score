@@ -7,11 +7,9 @@ import os
 from nltk.tokenize import RegexpTokenizer
 
 def load_embeddings(glove_path):
-	print("Loading embeddings...")
+	print("Loading embeddings at {}...".format(glove_path))
 	weight_vectors = []
 	word_idx = {}
-
-	i = 0 
 
 	with codecs.open(glove_path, encoding='utf-8') as f:
 		for line in f:
