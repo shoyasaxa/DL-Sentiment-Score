@@ -62,8 +62,8 @@ def build_model(weight_matrix, max_words, EMBEDDING_DIM):
 def build_model_big_lstm(weight_matrix, max_words, EMBEDDING_DIM):
 	model = Sequential()
 	model.add(Embedding(len(weight_matrix), EMBEDDING_DIM, weights=[weight_matrix], input_length=max_words, trainable=False))
-	model.add(Bidirectional(LSTM(1024, dropout=0.2, recurrent_dropout=0.2,return_sequences=True)))
-	model.add(Bidirectional(LSTM(1024, dropout=0.2, recurrent_dropout=0.2)))
+	model.add(Bidirectional(LSTM(256, dropout=0.4, recurrent_dropout=0.4,return_sequences=True)))
+	model.add(Bidirectional(LSTM(128, dropout=0.5, recurrent_dropout=0.5)))
 	model.add(Dense(1024, activation='relu'))
 	model.add(Dropout(0.50))
 	model.add(Dense(512, activation='relu'))
