@@ -99,19 +99,6 @@ def test_predict(path):
 	weight_matrix, word_idx = uf.load_embeddings(glove_file)
 	# weight_path = path +'/model/best_weights_bi_glove.hdf5'
 
-	# models = [] 
-
-	# i=0
-	# for model_weight_file in os.listdir(path+'/model/keras_tuner'):
-	# 	json_file = open(root_path+"/keras_tuner/models/best_model_{}.json".format(i))
-	# 	loaded_model_json = json_file.read()
-	# 	json_file.close()
-	# 	loaded_model = model_from_json(loaded_model_json)
-	# 	loaded_model.load_weights(root_path+"/keras_tuner/weights/best_model_{}.h5".format(i))
-	# 	loaded_model.compile(loss='categorical_crossentropy',optimizer='adam', metrics=['accuracy'])
-	# 	models.append(loaded_model)
-	# 	i+=1
-
 	weight_path = path +'/model/best_model.hdf5'
 	loaded_model = load_model(weight_path)
 	loaded_model.summary()
@@ -143,10 +130,6 @@ def test_predict(path):
 	for sentence in sentences:
 		print(predict_score(loaded_model,sentence,word_idx))
 		print(sentence)
-
-		# for i, model in enumerate(models):
-		# 	print("model {}:".format(i))
-		# 	print(predict_score(model,sentence,word_idx))
 
 def predict_review_score_v2(path,data_path):
 	glove_file = path+'/Data/glove/glove_6B_100d.txt'
@@ -233,62 +216,6 @@ def predict_review_score_v2(path,data_path):
 	df_prof_review_scores.to_excel(path+'/output/dl_review_scores_v3.xlsx')
 
 	print("Done")
-
-def predict_review_score(path,data_path):
-	glove_file = path+'/Data/glove/glove_6B_100d.txt'
-	weight_matrix, word_idx = uf.load_embeddings(glove_file)
-	weight_path = path +'/model/best_model.hdf5'
-	loaded_model = load_model(weight_path)
-
-	df = pd.read_excel(data_path)
-	df = df.loc[df["is_workload"] == 0].copy()
-
-	df['review'] = df['review'].replace('\n','. ', regex=True)
-	df['review'] = df['review'].replace("\\","", regex=True)
-
-
-	reviews = df["review"].values.tolist()
-	is_workload_list = df["is_workload"].values.tolist()
-	prof_ids = df["prof_id_culpa"].values.tolist() 
-	review_ids = df["id_culpa"].values.tolist()
-
-
-	review_scores = [] 
-	for i, review in enumerate(reviews):
-		score_sum = 0
-		# sentences = reviews.split('.')
-		sentences = split_into_sentences(review)
-		for sentence in sentences: 
-			words = sentence.split(' ')
-			if len(words) > 50:
-				sentence = " ".join(words[:50]) 
-			if words[0] != "." or words[0] != "\".":
-				score = predict_score(loaded_model,sentence,word_idx)
-				# print(score)
-				score_sum += score 
-		review_scores.append(score_sum/len(sentences))
-
-		if (i%100==0):
-			print("{}/{}".format(i,len(reviews)))
-
-	df["scores"] = review_scores
-
-	new_range = 4 
-	new_min = 1 
-	old_range = 1
-
-	df["scores"] = round(((df["scores"] * new_range)/old_range)+new_min,2)
-
-	minmax_scaler = MinMaxScaler(feature_range=(1, 5))
-	df["scores_min_max_scaled"] = minmax_scaler.fit_transform(df["scores"].values)
-
-	df[['prof_id_culpa','id_culpa','review','scores','scores_min_max_scaled']].to_excel(path+"/output/dl_review_scores_v1.xlsx")
-
-	df_prof_scores = df.groupby(['prof_id_culpa']).mean()
-	df_prof_scores.to_excel(path+'/output/dl_prof_scores_v1.xlsx')
-
-
-
 
 if __name__ == "__main__":
 	# test_predict(sys.argv[1])

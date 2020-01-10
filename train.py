@@ -130,32 +130,6 @@ def train(root_path):
 	saveBestModel = keras.callbacks.ModelCheckpoint(root_path+'/model/best_model.hdf5', monitor='val_acc', verbose=0, save_best_only=True, save_weights_only=False, mode='auto', period=1)
 	earlyStopping = keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=0, patience=3, verbose=0, mode='auto')
 
-	# print("Initializing RandomSearch Tuner...")
-
-	# tuner = RandomSearch(
-	# 	 MyHyperModel(weight_matrix=weight_matrix, max_words=max_seq_length, embedding_dim=EMBEDDING_DIM),
-	# 	 objective='val_accuracy',
-	# 	 max_trials=3,
-	# 	 executions_per_trial=1 
-	# )
-
-	# print("Searching...")
-	# tuner.search(train_x, train_y, batch_size=BATCH_SIZE, epochs=15,validation_data=(val_x, val_y))
-	# tuner.search(train_x, train_y, batch_size=BATCH_SIZE, epochs=25,validation_data=(val_x, val_y), callbacks=[saveBestModel, earlyStopping])
-
-	# best_models = tuner.get_best_models(num_models=2)
-	# for i, model in enumerate(best_models):
-	# 	score, acc = model.evaluate(test_x, test_y, batch_size=BATCH_SIZE)
-	# 	print("model {}:".format(i+1))
-	# 	print('Test score:', score)
-	# 	print('Test accuracy:', acc)
-	# 	model.save_weights(root_path+"/keras_tuner/weights/best_model_{}.h5".format(i))
-	# 	model_json = model.to_json()
-	# 	with open(root_path+"/keras_tuner/models/best_model_{}.json".format(i),"w") as json_file:
-	# 		json_file.write(model_json)
-	# 	print("model {} saved".format(i+1))
-
-
 	# Fit the model
 	history = model.fit(train_x, train_y, batch_size=BATCH_SIZE, epochs=20,validation_data=(val_x, val_y), callbacks=[saveBestModel, earlyStopping])
 
