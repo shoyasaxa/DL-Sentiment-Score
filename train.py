@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 
 from nltk.tokenize import RegexpTokenizer
 
-def load_all_data(data_dir,prediction_path, glove_file, first_run):
+def load_all_data(data_dir,prediction_path, glove_file):
 	weight_matrix, word_idx = uf.load_embeddings(glove_file)
 
 	data = uf.read_data(data_dir+'/')
@@ -123,7 +123,7 @@ def train(root_path):
 	glove_file =  root_path + '/Data/glove/glove_6B_100d.txt'
 	glove_file_twitter = root_path + '/Data/glove/glove.twitter.27B.200d.txt'
 
-	train_x, train_y, test_x, test_y, val_x, val_y, weight_matrix, word_idx, max_seq_length = load_all_data(data_directory,prediction_path, glove_file_twitter, first_run)
+	train_x, train_y, test_x, test_y, val_x, val_y, weight_matrix, word_idx, max_seq_length = load_all_data(data_directory,prediction_path, glove_file_twitter)
 
 	model = build_model_big_lstm(weight_matrix, max_seq_length, EMBEDDING_DIM)
 
